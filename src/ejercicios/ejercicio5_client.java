@@ -1,23 +1,27 @@
 package ejercicios;
 
-import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ejercicio5_client {
     public static void main(String[] args) {
-        try (Socket client = new Socket("localhost", 1234); ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream())) {
+        try (Socket client = new Socket("localhost", 1234); ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream()); ObjectInputStream ois = new ObjectInputStream(client.getInputStream())) {
 
             Libro libro = new Libro();
             libro.setTitulo("Titulo 1");
             libro.setAutor("Autor");
             libro.setEditorial("Tilin Editorial Papers");
+
             oos.writeObject(libro);
+            oos.flush();
 
-            System.out.println("Mensaje enviado!");
+            Libro libro2 = (Libro) ois.readObject();
+            System.out.println("Objeto recibido: " + libro2);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 }

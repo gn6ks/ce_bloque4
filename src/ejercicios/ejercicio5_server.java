@@ -2,6 +2,7 @@ package ejercicios;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -15,12 +16,20 @@ public class ejercicio5_server {
                 Socket client = server.accept();
                 System.out.println("Cliente conectado!");
 
-                try (ObjectInputStream ois = new ObjectInputStream(client.getInputStream())) {
+                try (ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream()); ObjectInputStream ois = new ObjectInputStream(client.getInputStream())) {
                     Libro libro = (Libro) ois.readObject();
-                    System.out.println("Mensaje recibido...");
-                    System.out.println("Objeto recibido: " + libro.toString());
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
+                    System.out.println("Objeto recibido: " + libro);
+
+                    Libro respuesta = new Libro();
+                    respuesta.setTitulo("Titulo 2");
+                    respuesta.setAutor("Autor 2");
+                    respuesta.setEditorial("Kirk Land News");
+
+                    oos.writeObject(respuesta);
+                    oos.flush();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
