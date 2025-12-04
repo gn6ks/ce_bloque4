@@ -1,4 +1,4 @@
-package ejercicios;
+package Clientes;
 
 import java.io.IOException;
 import java.io.PrintWriter;

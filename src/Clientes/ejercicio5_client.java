@@ -1,4 +1,6 @@
-package ejercicios;
+package Clientes;
+
+import ejercicios.Libro;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

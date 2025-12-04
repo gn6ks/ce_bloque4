@@ -1,4 +1,6 @@
-package ejercicios;
+package Servidores;
+
+import ejercicios.Libro;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

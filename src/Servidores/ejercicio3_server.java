@@ -1,4 +1,4 @@
-package ejercicios;
+package Servidores;
 
 import java.io.BufferedReader;
 import java.io.IOException;

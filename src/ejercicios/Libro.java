@@ -1,21 +1,17 @@
 package ejercicios;
 
-import java.io.Serializable;
-
-public class Libro implements Serializable {
-    //atributos
+public class Libro {
     private String titulo;
     private String autor;
     private String editorial;
 
-    //constructor
+    public Libro() {}
+
     public Libro(String titulo, String autor, String editorial) {
         this.titulo = titulo;
         this.autor = autor;
         this.editorial = editorial;
     }
-
-    public Libro() {}
 
     public String getTitulo() {
         return titulo;
@@ -43,7 +39,7 @@ public class Libro implements Serializable {
 
     @Override
     public String toString() {
-        return "Libro {" +
+        return "Libro{" +
                 "titulo='" + titulo + '\'' +
                 ", autor='" + autor + '\'' +
                 ", editorial='" + editorial + '\'' +
