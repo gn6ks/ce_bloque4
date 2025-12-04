@@ -21,21 +21,21 @@ public class ejercicio5_server {
                 /**
                  * recoger un objeto (Libro) y devolver un nuevo objeto (Libro) a cliente
                  */
-                try (ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream()); ObjectInputStream ois = new ObjectInputStream(client.getInputStream())) {
-                    Libro libro = (Libro) ois.readObject();
-                    System.out.println("Objeto recibido: " + libro);
-
-                    Libro respuesta = new Libro();
-                    respuesta.setTitulo("Titulo 2");
-                    respuesta.setAutor("Autor 2");
-                    respuesta.setEditorial("Kirk Land News");
-
-                    oos.writeObject(respuesta);
-                    oos.flush();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+//                try (ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream()); ObjectInputStream ois = new ObjectInputStream(client.getInputStream())) {
+//                    Libro libro = (Libro) ois.readObject();
+//                    System.out.println("Objeto recibido: " + libro.toString());
+//
+//                    Libro respuesta = new Libro();
+//                    respuesta.setTitulo("Titulo 2");
+//                    respuesta.setAutor("Autor 2");
+//                    respuesta.setEditorial("Kirk Land News");
+//
+//                    oos.writeObject(respuesta);
+//                    oos.flush();
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
 
                 /**
                  * recoger un objeto (Libro), cambiarle un atributo mediante los setters programados y devolver mismo objeto (Libro) a cliente
