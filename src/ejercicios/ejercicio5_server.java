@@ -16,6 +16,9 @@ public class ejercicio5_server {
                 Socket client = server.accept();
                 System.out.println("Cliente conectado!");
 
+                /**
+                 * recoger un objeto (Libro) y devolver un nuevo objeto (Libro) a cliente
+                 */
                 try (ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream()); ObjectInputStream ois = new ObjectInputStream(client.getInputStream())) {
                     Libro libro = (Libro) ois.readObject();
                     System.out.println("Objeto recibido: " + libro);
@@ -26,6 +29,22 @@ public class ejercicio5_server {
                     respuesta.setEditorial("Kirk Land News");
 
                     oos.writeObject(respuesta);
+                    oos.flush();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                /**
+                 * recoger un objeto (Libro), cambiarle un atributo mediante los setters programados y devolver mismo objeto (Libro) a cliente
+                 */
+                try (ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream()); ObjectInputStream ois = new ObjectInputStream(client.getInputStream())) {
+                    Libro libro = (Libro) ois.readObject();
+                    System.out.println("Objeto recibido: " + libro);
+
+                    libro.setTitulo("JIJIJIJA");
+
+                    oos.writeObject(libro);
                     oos.flush();
 
                 } catch (Exception e) {
