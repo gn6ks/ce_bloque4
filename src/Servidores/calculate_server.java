@@ -18,9 +18,10 @@ public class calculate_server {
                     String operator = br.readLine();
                     String number1 = br.readLine();
                     String number2 = br.readLine();
+                    String clientName = br.readLine();
 
                     Integer resultOfOperation = calculate(operator, number1, number2);
-                    System.out.println(resultOfOperation);
+                    System.out.println("calculations done for client: " + clientName + " -- result: " + resultOfOperation);
                 }
             }
 

@@ -8,12 +8,14 @@ public class calculate_client {
     public static void main(String[] args) {
         try (Socket client = new Socket("localhost", 5000); PrintWriter pw = new PrintWriter(client.getOutputStream(), true)) {
 
-            String operator = ("*");
-            String number1 = ("2");
-            String number2 = ("3");
+            String operator = ("/");
+            String number1 = ("100");
+            String number2 = ("2");
+            String clientName = ("Biggy Chesse");
             pw.println(operator);
             pw.println(number1);
             pw.println(number2);
+            pw.println(clientName);
 
             System.out.println("Mensaje enviado!");
 
