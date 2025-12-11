@@ -1,9 +1,13 @@
 package Objects;
 
-public class Password {
+import java.io.Serializable;
+
+public class Password implements Serializable {
 
     private String plainPassword;
     private String encryptedPassword;
+
+    public Password() {}
 
     public Password(String plainPassword, String encryptedPassword) {
         this.plainPassword = plainPassword;
