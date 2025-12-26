@@ -1,0 +1,6 @@
+1;Quieres recomendaciones para libros?
+2;Quieres saber cuales son los libros mas vendidos?
+3;Quieres recomendaciones para peliculas?
+4;Quieres saber cuales son las peliculas mas taquilleras?
+5;Quieres recomendaciones para musica?
+6;Quieres escuchar algun tipo de musica?

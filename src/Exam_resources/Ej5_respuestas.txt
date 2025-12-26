@@ -1,0 +1,6 @@
+1;Aqui van algunas recomendaciones de libros: bla, bla, bla
+2;Los libros mas vendidos de este año son bla, bla, bla
+3;Aqui van algunas recomendaciones de peliculas: bla, bla, bla
+4;Las peliculas mas taquilleras de este año son bla, bla, bla
+5;Aquí van algunas recomendaciones por tipo de música: bla, bla, bla
+6;Estas son las canciones disponibles en nuestra base de datos: bla, bla, bla

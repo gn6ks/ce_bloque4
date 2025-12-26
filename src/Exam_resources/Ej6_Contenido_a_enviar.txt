@@ -1,0 +1,10 @@
+1;Computers are fast, programmers keep it slow.
+2;When I wrote this code, only God and I understood what I did. Now only God knows.
+3;You never finish a program, you just stop working on it.
+4;God is real, unless declared integer.
+5;Pasting code from the internet into production code is like chewing gum found in the street.
+6;With enough practice, any interface is intuitive.
+7;First do it, then do it right, then do it fast.
+8;First solve the problem, then write the code.
+9;One of the best programming skills you can have is knowing when to walk away for a while.
+10;Always code as if the person who ends up maintaining your code will be a violent psychopath who knows where you live.

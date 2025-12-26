@@ -1,0 +1,4 @@
+newton;Teoria de la gravitacion universal
+maxwell;Leyes del electromagnetismo
+einstein;Teoria de la relatividad
+hawking;Agujeros negros
