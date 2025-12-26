@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class calculate_cHandler implements Runnable {
-    private Socket socket;
+    private final Socket socket;
 
     public calculate_cHandler(Socket socket) {
         this.socket = socket;
@@ -20,7 +20,7 @@ public class calculate_cHandler implements Runnable {
             String number2 = br.readLine();
             String clientName = br.readLine();
 
-            Integer resultOfOperation = calculate(operator, number1, number2);
+            int resultOfOperation = calculate(operator, number1, number2);
             System.out.println("calculations done for client: " + clientName + " -- result: " + resultOfOperation);
         } catch (IOException e) {
             throw new RuntimeException(e);
