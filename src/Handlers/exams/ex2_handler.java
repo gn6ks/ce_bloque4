@@ -5,162 +5,146 @@ import Objects.exams.Message;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Manejador de cliente para el servidor.
+ * Protocolo esperado:
+ * 1. Recibe Message con user/password → valida contra ficheros.
+ * 2. Si OK, recibe número de líneas → responde "PREPARED".
+ * 3. Recibe mensajes hasta "END CLIENT".
+ * 4. Responde "END SERVER" y cierra.
+ */
 public class ex2_handler implements Runnable {
+
     private final Socket socket;
 
-    /**
-     * Constructor para inicializar el manejador con el socket del cliente.
-     * @param client El socket de la conexión del cliente.
-     */
     public ex2_handler(Socket client) {
         this.socket = client;
     }
 
-    /**
-     * Lógica principal del manejador que se ejecuta en un nuevo hilo.
-     * Gestiona la comunicación, autenticación y recepción de datos.
-     */
     @Override
     public void run() {
-        try (Socket s = socket;
-             ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
-             ObjectInputStream ois = new ObjectInputStream(s.getInputStream())) {
+        try (Socket s = socket; ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream()); ObjectInputStream ois = new ObjectInputStream(s.getInputStream())) {
 
-            // La llamada inicial a flush() es crucial para que ObjectOutputStream
-            // escriba su encabezado en el stream de salida, lo que permite a
-            // ObjectInputStream en el cliente inicializarse correctamente.
+            // Flush inicial para handshake de ObjectOutputStream/ObjectInputStream
             oos.flush();
 
-            // 1. Lectura del mensaje inicial de LOGIN.
-            Message msgLogin = (Message) ois.readObject();
+            // ——— Paso 1: Autenticación ———
+            Message loginMsg = (Message) ois.readObject();
+            String user = loginMsg.getUser();
+            String password = loginMsg.getPassword();
 
-            // 2. Comprobación de credenciales.
-            if (!checkUser(msgLogin.getUser()) || !checkPassword(msgLogin.getPassword())) {
-                // Si la autenticación falla, se envía un mensaje de ERROR y se termina el manejador.
-                msgLogin.setContent("ERROR");
-                oos.writeObject(msgLogin);
-                oos.flush();
-                return; // Termina la ejecución del hilo.
+            if (!usuarioValido(user) || !contrasenyaValida(password)) {
+                oos.writeObject(crearMensaje("ERROR"));
+                return;
             }
 
-            // 3. Autenticación exitosa: se envía la confirmación (200 OK).
-            msgLogin.setContent("200 OK");
-            oos.writeObject(msgLogin);
-            oos.flush();
+            oos.writeObject(crearMensaje("200 OK"));
 
-            // 1. Se espera el mensaje que indica el número de líneas (aunque el valor no se usa para el bucle).
-            Message msgNumLines = (Message) ois.readObject();
-            System.out.println("Numero de lineas de mensajes a recibir de cliente: " + msgNumLines.getContent());
+            // ——— Paso 2: Recepción del número de líneas ———
+            Message numLinesMsg = (Message) ois.readObject();
+            int numLineas = 0;
+            try {
+                numLineas = Integer.parseInt(numLinesMsg.getContent());
+            } catch (NumberFormatException ignored) { /* Se ignora si no es número */ }
 
-            // 2. Preparación para la escritura. Se usa 'true' para el 'FileWriter' para AÑADIR (append) al archivo.
-            File file = new File("contenido.txt");
+            System.out.println("📨 Cliente '" + user + "' enviará " + numLineas + " líneas.");
 
-            // 3. Se notifica al cliente que el servidor está listo para recibir el contenido ("PREPARED").
-            msgNumLines.setContent("PREPARED");
-            oos.writeObject(msgNumLines);
-            oos.flush();
+            oos.writeObject(crearMensaje("PREPARED"));
 
-            // Uso de try-with-resources para el BufferedWriter/FileWriter para asegurar el cierre y el volcado de datos.
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
-                Message contentMsg;
+            // ——— Paso 3: Recepción y guardado del contenido ———
+            File archivoSalida = new File("contenido.txt");
 
-                // Bucle infinito para recibir mensajes hasta que se reciba la señal de parada.
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(archivoSalida, true))) { // true = modo 'append'
+
+                int lineasRecibidas = 0;
                 while (true) {
-                    contentMsg = (Message) ois.readObject();
+                    Message msg = (Message) ois.readObject();
+                    String contenido = msg.getContent();
 
-                    // CONDICIÓN DE PARADA: El cliente envía la señal "END CLIENT".
-                    if ("END CLIENT".equals(contentMsg.getContent())) {
-                        System.out.println("END CLIENT mensaje recibido...");
+                    if ("END CLIENT".equals(contenido)) {
+                        System.out.println("⏹️ Cliente terminó la transmisión.");
                         break;
                     }
 
-                    // Escritura del contenido del mensaje en el archivo 'contenido.txt'
-                    System.out.println("Mensaje recibido: " + contentMsg.getContent());
-                    bw.write(contentMsg.getContent());
-                    bw.newLine(); // Añade un salto de línea después de cada mensaje.
+                    // Guardamos la línea recibida
+                    writer.write(contenido);
+                    writer.newLine();
+                    lineasRecibidas++;
+                    System.out.println("📝 Guardada línea " + lineasRecibidas + ": " + contenido);
                 }
 
-                // 1. Envío de la confirmación final al cliente ("END SERVER").
-                Message endConnection = new Message();
-                endConnection.setContent("END SERVER");
-                oos.writeObject(endConnection);
-                oos.flush();
+                // ——— Paso 4: Confirmación final ———
+                oos.writeObject(crearMensaje("END SERVER"));
+                System.out.println("✅ " + lineasRecibidas + " líneas guardadas en '" + archivoSalida.getName() + "'.");
 
-                // 2. El 'return' termina la ejecución. Los streams del try-with-resources se cierran automáticamente.
-                return;
-            } // El BufferedWriter (bw) se cierra aquí, volcando los datos.
+            } // writer se cierra y vacía el buffer automáticamente
 
+        } catch (IOException e) {
+            System.err.println("🔌 Conexión cerrada abruptamente por el cliente.");
+        } catch (ClassNotFoundException e) {
+            System.err.println("❌ Clase 'Message' no encontrada en el classpath.");
         } catch (Exception e) {
-            // Manejo de excepciones, como IOException o ClassNotFoundException.
+            System.err.println("💥 Error inesperado en el manejador:");
             e.printStackTrace();
         }
     }
 
+    // ——————————————————————— Métodos de validación ———————————————————————
+
     /**
-     * Comprueba si el nombre de usuario existe en el archivo de usuarios autorizados.
-     *
-     * @param user El nombre de usuario a buscar.
-     * @return true si el usuario es encontrado entre las etiquetas <usuario>...</usuario>, false en caso contrario.
+     * Verifica si el usuario existe en el fichero 'Ej2_Usuarios_autorizados.txt'.
+     * Formato esperado en el fichero: <usuario>nombre</usuario> (una por línea).
      */
-    private boolean checkUser(String user) {
-        // Usa try-with-resources para asegurar que el BufferedReader se cierra.
-        try (BufferedReader br = new BufferedReader(new FileReader("src/Exam_resources/Ej2_Usuarios_autorizados.txt"))) {
-            String line;
-            String tagStart = "<usuario>";
-            String tagEnd = "</usuario>";
-
-            while ((line = br.readLine()) != null) {
-
-                // Comprueba si la línea contiene ambas etiquetas.
-                if (line.contains(tagStart) && line.contains(tagEnd)) {
-                    // Extracción del contenido entre las etiquetas.
-                    int start = line.indexOf(tagStart) + tagStart.length();
-                    int end = line.indexOf(tagEnd);
-                    String fileUser = line.substring(start, end).trim();
-
-                    // Comparación y retorno si se encuentra la coincidencia.
-                    if (fileUser.equals(user)) {
-                        return true;
-                    }
-                }
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+    private boolean usuarioValido(String usuario) {
+        return buscarEnFichero(usuario, "src/Exam_resources/Ej2_Usuarios_autorizados.txt", "usuario");
     }
 
     /**
-     * Comprueba si la contraseña existe en el archivo de contraseñas autorizadas.
-     *
-     * @param password La contraseña a buscar.
-     * @return true si la contraseña es encontrada entre las etiquetas <contrasenya>...</contrasenya>, false en caso contrario.
+     * Verifica si la contraseña existe en el fichero 'Ej2_Contrasenyas_autorizadas.txt'.
+     * Formato esperado: <contrasenya>clave</contrasenya>.
      */
-    private boolean checkPassword(String password) {
-        // Usa try-with-resources para asegurar que el BufferedReader se cierra.
-        try (BufferedReader br = new BufferedReader(new FileReader("src/Exam_resources/Ej2_Contrasenyas_autorizadas.txt"))) {
-            String line;
-            String tagStart = "<contrasenya>";
-            String tagEnd = "</contrasenya>";
+    private boolean contrasenyaValida(String contrasenya) {
+        return buscarEnFichero(contrasenya, "src/Exam_resources/Ej2_Contrasenyas_autorizadas.txt", "contrasenya");
+    }
 
-            while ((line = br.readLine()) != null) {
-                // Comprueba si la línea contiene ambas etiquetas.
-                if (line.contains(tagStart) && line.contains(tagEnd)) {
-                    // Extracción del contenido entre las etiquetas.
-                    int start = line.indexOf(tagStart) + tagStart.length();
-                    int end = line.indexOf(tagEnd);
-                    String filePassword = line.substring(start, end).trim();
+    /**
+     * Método genérico para buscar un valor entre etiquetas XML-like en un fichero.
+     *
+     * @param valor       Valor a buscar (ej. "alice")
+     * @param rutaFichero Ruta del archivo a leer
+     * @param etiqueta    Nombre de la etiqueta (ej. "usuario")
+     * @return true si se encuentra, false en caso contrario
+     */
+    private boolean buscarEnFichero(String valor, String rutaFichero, String etiqueta) {
+        String apertura = "<" + etiqueta + ">";
+        String cierre = "</" + etiqueta + ">";
 
-                    // Comparación y retorno si se encuentra la coincidencia.
-                    if (filePassword.equals(password)) {
+        try (BufferedReader br = new BufferedReader(new FileReader(rutaFichero))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                if (linea.contains(apertura) && linea.contains(cierre)) {
+                    int inicio = linea.indexOf(apertura) + apertura.length();
+                    int fin = linea.indexOf(cierre, inicio);
+                    String valorFichero = linea.substring(inicio, fin).trim();
+                    if (valorFichero.equals(valor)) {
                         return true;
                     }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("⚠️ Error leyendo '" + rutaFichero + "': " + e.getMessage());
         }
         return false;
+    }
+
+    // ——————————————————————— Métodos auxiliares ———————————————————————
+
+    /**
+     * Crea un nuevo Message con el contenido especificado.
+     */
+    private Message crearMensaje(String contenido) {
+        Message msg = new Message();
+        msg.setContent(contenido);
+        return msg;
     }
 }
