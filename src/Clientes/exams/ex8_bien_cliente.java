@@ -16,11 +16,8 @@ import java.util.Scanner;
  */
 public class ex8_bien_cliente {
 
-    /** 👤 Nombre del usuario que se conecta */
     private static String usuario;
-    /** 🌐 Dirección IP o hostname del servidor */
     private static String direccion;
-    /** 🚪 Puerto del servidor */
     private static int puerto;
 
     /**

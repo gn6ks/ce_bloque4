@@ -15,22 +15,16 @@ import java.util.List;
  */
 public class ex8_bien_manejador implements Runnable {
 
-    /** 📡 Socket de conexión con el cliente */
     private Socket socket;
 
-    /** 📄 Archivo que contiene la lista de usuarios autenticados (separados por ';') */
     private static final File usuariosAutenticados = new File("src/Exam_resources/Ej8_usuarios.data");
 
-    /** 📄 Archivo que mapea usuario → inbox (formato: usuario:inboxX) */
     private static final File archivoInboxData = new File("src/Exam_resources/Ej8_inbox_refs.data");
 
-    /** 🧾 Lista en memoria de usuarios válidos */
     private static final List<String> usuarios = new ArrayList<>();
 
-    /** 👤 Nombre del usuario actual conectado (compartido estáticamente, cuidado en entornos concurrentes ⚠️) */
     private static String usuario;
 
-    /** 📬 Nombre del inbox asignado al usuario (ej. "inbox1") */
     private String inbox;
 
     /** 📁 Lista de archivos reales donde se almacenan los mensajes de cada inbox */
