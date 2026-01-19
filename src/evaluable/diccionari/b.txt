@@ -44,4 +44,4 @@ bitllet;document que permet viatjar
 boca;obertura per on es menja
 bombolla;porció d’aire dins un líquid
 brou;líquid obtingut de bullir aliments
-branca;part d’un arbre que ix del troncaaa;aaa
+branca;part d’un arbre que ix del tronc
